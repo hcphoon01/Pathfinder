@@ -96,3 +96,6 @@ venv.bak/
 
 # Rope project settings
 .ropeproject
+
+example.py
+pseudocode.txt

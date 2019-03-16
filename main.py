@@ -1,5 +1,7 @@
 import pygame
 from draw import Draw
+from tkinter import *
+from pathfinder import pathfinder
 
 # Define colours
 BLACK = (0, 0, 0)
@@ -17,7 +19,7 @@ M_RIGHT = 3
 (g_width, g_height) = (20, 20)
 margin = 1
 
-wall_list = []
+wallList = []
 start = 0
 end = 0
 
@@ -57,21 +59,21 @@ while not done:
 				if ([pos[0] // (g_width + margin), pos[1] // (g_height + margin)]) == start or end:
 					continue;
 				coords = Draw().Wall(pos, win, "add")
-				if coords not in wall_list:
-					wall_list.append(coords)
-			if keys[pygame.K_s] and start == 0:
-				pos = pygame.mouse.get_pos()
-				coords = Draw().Start(pos, win, "add")
-				start = coords
-			if keys[pygame.K_e] and end == 0:
-				pos = pygame.mouse.get_pos()
-				coords = Draw().End(pos, win, "add")
-				end = coords
+				if coords not in wallList:
+					wallList.append(coords)
+#			if keys[pygame.K_s] and start == 0:
+#				pos = pygame.mouse.get_pos()
+#				coords = Draw().Start(pos, win, "add")
+#				start = coords
+#			if keys[pygame.K_e] and end == 0:
+#				pos = pygame.mouse.get_pos()
+#				coords = Draw().End(pos, win, "add")
+#				end = coords
 		
 		if mouse[2]:
 			if all(a == 0 for a in keys):
 				pos = pygame.mouse.get_pos()
-				if ([pos[0] // (g_width + margin), pos[1] // (g_height + margin)]) in wall_list:
+				if ([pos[0] // (g_width + margin), pos[1] // (g_height + margin)]) in wallList:
 					coords = Draw().Wall(pos, win, "remove")
 				elif ([pos[0] // (g_width + margin), pos[1] // (g_height + margin)]) == start:
 					Draw().Start(pos, win, "remove")
@@ -88,21 +90,33 @@ while not done:
 				Draw().End(pos, win, "remove")
 				end = 0
 
+		if keys[pygame.K_s] and start == 0:
+			pos = pygame.mouse.get_pos()
+			coords = Draw().Start(pos, win, "add")
+			start = coords
+		
+		if keys[pygame.K_e] and end == 0:
+			pos = pygame.mouse.get_pos()
+			coords = Draw().End(pos, win, "add")
+			end = coords
+
 		if keys[pygame.K_c]:
 			for row in range((height // g_height)-2):
 				for column in range((width // g_width)-2):
 					colour = WHITE
 					rect = ((margin + g_width) * column + margin, (margin + g_height) * row + margin, g_width, g_height)
 					pygame.draw.rect(win, colour, rect)
-					del wall_list[:]
-		if keys[pygame.K_SPACE]:
-			print(wall_list)
+					del wallList[:]
+					start = 0
+					end = 0
 
-		if keys[pygame.K_o]:
-			menu = pygame.Surface((200, 200))
-			menu.fill((50, 50, 50))
-			win.blit(menu, (width, height))
-			pygame.display.flip
+		if keys[pygame.K_SPACE]:
+			if start != 0 and end != 0:
+				path = pathfinder(start, end, win, wallList)
+				Draw().Path(path, start, end, wallList, win)
+
+		if keys[pygame.K_p]:
+			print(pygame.mouse.get_pos())
 
 	clock.tick(60)
 	pygame.display.flip()
